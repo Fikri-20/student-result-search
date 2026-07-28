@@ -1,0 +1,11 @@
+*.csv
+*.accdb
+*.xlsx
+*.xls
+*.rar
+*.zip
+*.7z
+*.png
+.DS_Store
+node_modules/
+

@@ -1,0 +1,229 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#0b6d68" />
+    <meta
+      name="description"
+      content="بحث محلي وآمن في نتائج الثانوية العامة دون رفع ملفات الطلاب إلى الإنترنت."
+    />
+    <title>دفتر النتيجة — بحث الثانوية العامة</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <a class="skip-link" href="#searchInput">الانتقال إلى البحث</a>
+
+    <main class="app-shell">
+      <header class="site-header">
+        <a class="brand" href="#top" aria-label="دفتر النتيجة، الصفحة الرئيسية">
+          <span class="brand-mark" aria-hidden="true">ثـ</span>
+          <span>
+            <strong>دفتر النتيجة</strong>
+            <small>الدور الأول · 2026</small>
+          </span>
+        </a>
+
+        <div class="header-actions">
+          <span class="privacy-badge">
+            <span class="privacy-dot" aria-hidden="true"></span>
+            البيانات لا تغادر جهازك
+          </span>
+          <label class="button button-primary" for="filePicker">
+            <span aria-hidden="true">＋</span>
+            اختيار ملفات البيانات
+          </label>
+          <input
+            id="filePicker"
+            class="visually-hidden"
+            type="file"
+            accept=".csv,text/csv"
+            multiple
+          />
+        </div>
+      </header>
+
+      <section id="top" class="intro" aria-labelledby="pageTitle">
+        <div>
+          <p class="eyebrow">سجل محلي سريع</p>
+          <h1 id="pageTitle">ابحث عن النتيجة<br />كما تبحث في دفتر.</h1>
+        </div>
+        <p class="intro-copy">
+          اختر ملفي <bdi>Stage_New_Search.csv</bdi> و<bdi>SHREKAT.csv</bdi> مرة واحدة،
+          ثم ابحث برقم الجلوس أو الاسم. كل المعالجة تتم داخل هذا المتصفح.
+        </p>
+      </section>
+
+      <section id="loaderPanel" class="loader-panel" aria-labelledby="loaderTitle">
+        <div class="loader-copy">
+          <span class="step-number" aria-hidden="true">01</span>
+          <div>
+            <h2 id="loaderTitle">حمّل سجلاتك من الجهاز</h2>
+            <p>يمكنك اختيار الملفين معًا أو سحبهما إلى هذه المساحة.</p>
+          </div>
+        </div>
+
+        <div id="dropZone" class="drop-zone">
+          <div class="file-state" data-file="stage">
+            <span class="file-icon" aria-hidden="true">Σ</span>
+            <span>
+              <strong>ملف البحث والإحصائيات</strong>
+              <small id="stageFileName">Stage_New_Search.csv</small>
+            </span>
+            <span id="stageState" class="state-pill">في الانتظار</span>
+            <span class="progress-track" aria-hidden="true">
+              <span id="stageProgress" class="progress-value"></span>
+            </span>
+          </div>
+
+          <div class="file-state" data-file="detail">
+            <span class="file-icon" aria-hidden="true">≡</span>
+            <span>
+              <strong>ملف السجل الكامل</strong>
+              <small id="detailFileName">SHREKAT.csv</small>
+            </span>
+            <span id="detailState" class="state-pill">في الانتظار</span>
+            <span class="progress-track" aria-hidden="true">
+              <span id="detailProgress" class="progress-value"></span>
+            </span>
+          </div>
+        </div>
+
+        <p id="loadMessage" class="load-message" role="status" aria-live="polite">
+          لم يتم تحميل أي ملف بعد.
+        </p>
+      </section>
+
+      <section id="statsSection" class="stats-section" aria-labelledby="statsTitle" hidden>
+        <div class="section-heading">
+          <span class="step-number" aria-hidden="true">02</span>
+          <div>
+            <p class="eyebrow">صورة عامة</p>
+            <h2 id="statsTitle">الإحصائيات</h2>
+          </div>
+        </div>
+
+        <div class="ledger-stats">
+          <article class="stat stat-total">
+            <span>إجمالي السجلات</span>
+            <strong id="statTotal">—</strong>
+            <small>طالب وطالبة</small>
+          </article>
+          <article class="stat">
+            <span>ناجح دور أول</span>
+            <strong id="statPass">—</strong>
+            <small id="statPassRate">—</small>
+          </article>
+          <article class="stat">
+            <span>دور ثان</span>
+            <strong id="statSecond">—</strong>
+            <small id="statSecondRate">—</small>
+          </article>
+          <article class="stat">
+            <span>راسب</span>
+            <strong id="statFail">—</strong>
+            <small id="statFailRate">—</small>
+          </article>
+          <article class="stat">
+            <span>متوسط النسبة</span>
+            <strong id="statAverage">—</strong>
+            <small>للمجاميع المسجلة</small>
+          </article>
+        </div>
+      </section>
+
+      <section class="search-section" aria-labelledby="searchTitle">
+        <div class="section-heading">
+          <span class="step-number" aria-hidden="true">03</span>
+          <div>
+            <p class="eyebrow">بحث السجل</p>
+            <h2 id="searchTitle">اكتب رقم الجلوس أو الاسم</h2>
+          </div>
+        </div>
+
+        <div class="search-cheque" aria-describedby="searchHint">
+          <div class="cheque-body">
+            <div class="cheque-topline">
+              <span>نتيجة الثانوية العامة</span>
+              <span class="cheque-date">الدور الأول / 2026</span>
+            </div>
+
+            <label for="searchInput">ابحث عن</label>
+            <div class="search-control">
+              <input
+                id="searchInput"
+                type="search"
+                inputmode="search"
+                autocomplete="off"
+                placeholder="مثال: 2735400 أو مالك عبد الله"
+                disabled
+              />
+              <button id="clearSearch" class="clear-search" type="button" aria-label="مسح البحث" hidden>
+                ×
+              </button>
+            </div>
+
+            <p id="searchHint" class="search-hint">
+              حمّل ملف البحث أولًا. تظهر النتائج أثناء الكتابة.
+            </p>
+
+            <div class="micr-line" aria-hidden="true">
+              <span>⑆ 2026</span><span>⑈ 320</span><span>⑆ RESULT BOOK</span>
+            </div>
+          </div>
+
+          <aside class="cheque-stub" aria-hidden="true">
+            <span class="stub-label">بحث</span>
+            <strong>ث.ع</strong>
+            <span>محلي</span>
+            <bdi>2026 / 01</bdi>
+          </aside>
+        </div>
+
+        <div id="resultsMeta" class="results-meta" role="status" aria-live="polite"></div>
+        <div id="searchResults" class="search-results"></div>
+
+        <div id="emptySearch" class="empty-state">
+          <span aria-hidden="true">⌕</span>
+          <p>نتيجة البحث ستظهر هنا.</p>
+        </div>
+      </section>
+
+      <section id="recordSection" class="record-section" aria-labelledby="recordTitle" hidden>
+        <div class="record-toolbar">
+          <div>
+            <p class="eyebrow">السجل المطابق</p>
+            <h2 id="recordTitle">السجل الكامل</h2>
+          </div>
+          <div class="toolbar-actions">
+            <button id="printRecord" class="button button-secondary" type="button">طباعة</button>
+            <button id="closeRecord" class="button button-quiet" type="button">إغلاق</button>
+          </div>
+        </div>
+
+        <div id="recordCheque" class="record-cheque"></div>
+        <div id="recordFields" class="record-fields"></div>
+      </section>
+
+      <footer class="site-footer">
+        <p>كل البحث والفهرسة يتمان محليًا. لا تُرفع ملفات CSV إلى أي خادم.</p>
+        <span>دفتر النتيجة · 2026</span>
+      </footer>
+    </main>
+
+    <template id="resultTemplate">
+      <button class="result-row" type="button">
+        <span class="result-serial"></span>
+        <span class="result-identity">
+          <strong class="result-name"></strong>
+          <small class="result-seat"></small>
+        </span>
+        <span class="result-score"></span>
+        <span class="result-status"></span>
+        <span class="result-arrow" aria-hidden="true">←</span>
+      </button>
+    </template>
+
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
