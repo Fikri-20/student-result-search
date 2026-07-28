@@ -22,6 +22,11 @@ const elements = {
   resultsMeta: $("#resultsMeta"),
   resultCount: $("#resultCount"),
   searchResults: $("#searchResults"),
+  pagination: $("#pagination"),
+  previousPage: $("#previousPage"),
+  currentPage: $("#currentPage"),
+  totalPages: $("#totalPages"),
+  nextPage: $("#nextPage"),
   emptySearch: $("#emptySearch"),
   resultTemplate: $("#resultTemplate"),
   recordDialog: $("#recordDialog"),
@@ -43,6 +48,7 @@ const filterControls = [
 
 const numberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 const latinNumberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
+const PAGE_SIZE = 80;
 const recordShardCache = new Map();
 const nameShardCache = new Map();
 
@@ -78,6 +84,7 @@ let schoolMetadata = [];
 let filtersPromise = null;
 let searchTimer = null;
 let searchVersion = 0;
+let paginationState = null;
 
 function normalizeDigits(input) {
   return String(input || "")
@@ -291,23 +298,14 @@ async function searchByFilters(filters) {
   for (const entry of index) {
     const [seat, total, status, schoolIndex, gender] = entry;
     if (!matchesValues(total, status, schoolIndex, gender, filters)) continue;
-
-    let low = 0;
-    let high = rankedMatches.length;
-    while (low < high) {
-      const middle = (low + high) >> 1;
-      const current = rankedMatches[middle];
-      const comesBefore = Number(total) > Number(current[1]) ||
-        (Number(total) === Number(current[1]) && Number(seat) < Number(current[0]));
-      if (comesBefore) high = middle;
-      else low = middle + 1;
-    }
-    if (low < 80) {
-      rankedMatches.splice(low, 0, entry);
-      if (rankedMatches.length > 80) rankedMatches.pop();
-    }
+    rankedMatches.push(entry);
   }
-  return resolveSeats(rankedMatches.map(([seat]) => seat));
+  rankedMatches.sort((first, second) => {
+    const scoreDifference = Number(second[1]) - Number(first[1]);
+    if (scoreDifference) return scoreDifference;
+    return Number(first[0]) - Number(second[0]);
+  });
+  return rankedMatches.map(([seat]) => seat);
 }
 
 function sortRecordsByScore(records) {
@@ -320,13 +318,14 @@ function sortRecordsByScore(records) {
 
 function setEmpty(title, message) {
   elements.searchResults.replaceChildren();
+  elements.pagination.hidden = true;
   elements.emptySearch.hidden = false;
   elements.emptySearch.querySelector("h3").textContent = title;
   elements.emptySearch.querySelector("p").textContent = message;
   elements.resultCount.hidden = true;
 }
 
-function renderResults(records, sortedByScore = false) {
+function renderResults(records, sortedByScore = false, pageInfo = null) {
   elements.searchResults.replaceChildren();
   if (!records.length) {
     setEmpty("لا توجد نتيجة مطابقة", "جرّب كتابة جزء أطول من الاسم أو غيّر الفلاتر المختارة.");
@@ -336,9 +335,13 @@ function renderResults(records, sortedByScore = false) {
 
   elements.emptySearch.hidden = true;
   elements.resultCount.hidden = false;
-  elements.resultCount.textContent = formatNumber(records.length);
-  elements.resultsMeta.textContent = sortedByScore
-    ? `عرض ${formatNumber(records.length)} نتيجة مرتبة حسب المجموع من الأعلى إلى الأقل.`
+  const totalResults = pageInfo?.total ?? records.length;
+  const offset = pageInfo?.offset ?? 0;
+  elements.resultCount.textContent = formatNumber(totalResults);
+  elements.resultsMeta.textContent = pageInfo
+    ? `عرض ${formatNumber(offset + 1)}–${formatNumber(offset + records.length)} من ${formatNumber(totalResults)} نتيجة، مرتبة حسب المجموع من الأعلى إلى الأقل.`
+    : sortedByScore
+      ? `عرض ${formatNumber(records.length)} نتيجة مرتبة حسب المجموع من الأعلى إلى الأقل.`
     : `عرض ${formatNumber(records.length)} نتيجة؛ اضغط على أي سجل لعرض التفاصيل.`;
   const fragment = document.createDocumentFragment();
 
@@ -350,7 +353,7 @@ function renderResults(records, sortedByScore = false) {
     const schoolName = schoolValue(school, "name") || "بيانات المدرسة غير متاحة";
     const city = schoolValue(school, "city");
 
-    row.querySelector(".result-index").textContent = String(index + 1).padStart(2, "0");
+    row.querySelector(".result-index").textContent = String(offset + index + 1).padStart(2, "0");
     row.querySelector(".result-name").textContent = value(record, "name");
     row.querySelector(".result-school").textContent = city ? `${schoolName} · ${city}` : schoolName;
     row.querySelector(".result-seat").textContent = `رقم ${seat}`;
@@ -366,6 +369,36 @@ function renderResults(records, sortedByScore = false) {
   elements.searchResults.append(fragment);
 }
 
+async function renderFilterPage(page, scrollToResults = false) {
+  const state = paginationState;
+  if (!state) return;
+  const version = searchVersion;
+  const pageCount = Math.max(1, Math.ceil(state.seats.length / PAGE_SIZE));
+  const safePage = Math.min(Math.max(1, page), pageCount);
+  const offset = (safePage - 1) * PAGE_SIZE;
+
+  elements.previousPage.disabled = true;
+  elements.nextPage.disabled = true;
+  elements.resultsMeta.textContent = "جارٍ تحميل صفحة النتائج…";
+  const records = await resolveSeats(state.seats.slice(offset, offset + PAGE_SIZE));
+  if (state !== paginationState || version !== searchVersion) return;
+
+  state.page = safePage;
+  renderResults(records, true, { total: state.seats.length, offset });
+  elements.pagination.hidden = state.seats.length <= PAGE_SIZE;
+  elements.currentPage.textContent = formatNumber(safePage);
+  elements.totalPages.textContent = formatNumber(pageCount);
+  elements.previousPage.disabled = safePage <= 1;
+  elements.nextPage.disabled = safePage >= pageCount;
+
+  if (scrollToResults) {
+    document.querySelector(".results-section").scrollIntoView({
+      behavior: window.matchMedia("(prefers-reduced-motion: reduce)").matches ? "auto" : "smooth",
+      block: "start",
+    });
+  }
+}
+
 async function runSearch() {
   if (!catalog) return;
   const version = ++searchVersion;
@@ -373,6 +406,8 @@ async function runSearch() {
   const normalizedDigits = normalizeDigits(rawQuery).replace(/\s+/g, "");
   const numeric = /^\d+$/.test(normalizedDigits);
   const filters = activeFilters();
+  paginationState = null;
+  elements.pagination.hidden = true;
 
   elements.clearSearch.hidden = !rawQuery;
   if (!rawQuery && !filters.any) {
@@ -388,7 +423,15 @@ async function runSearch() {
     let records;
     let short = false;
     if (!rawQuery) {
-      records = await searchByFilters(filters);
+      const seats = await searchByFilters(filters);
+      if (version !== searchVersion) return;
+      paginationState = { seats, page: 1 };
+      if (!seats.length) {
+        renderResults([], true);
+        return;
+      }
+      await renderFilterPage(1);
+      return;
     } else {
       const result = numeric ? await searchBySeat(normalizedDigits) : await searchByName(rawQuery);
       records = result.records;
@@ -404,7 +447,7 @@ async function runSearch() {
       elements.resultsMeta.textContent = "عبارة البحث قصيرة جدًا.";
       return;
     }
-    renderResults(records.slice(0, 80), filters.any);
+    renderResults(records.slice(0, PAGE_SIZE), filters.any);
   } catch (error) {
     if (version !== searchVersion) return;
     console.error(error);
@@ -571,6 +614,22 @@ elements.clearSearch.addEventListener("click", () => {
   runSearch();
 });
 elements.resetFilters.addEventListener("click", resetFilters);
+elements.previousPage.addEventListener("click", () => {
+  if (paginationState) {
+    renderFilterPage(paginationState.page - 1, true).catch((error) => {
+      console.error(error);
+      elements.resultsMeta.textContent = "تعذر تحميل الصفحة السابقة. أعد المحاولة.";
+    });
+  }
+});
+elements.nextPage.addEventListener("click", () => {
+  if (paginationState) {
+    renderFilterPage(paginationState.page + 1, true).catch((error) => {
+      console.error(error);
+      elements.resultsMeta.textContent = "تعذر تحميل الصفحة التالية. أعد المحاولة.";
+    });
+  }
+});
 elements.closeRecord.addEventListener("click", () => elements.recordDialog.close());
 elements.recordDialog.addEventListener("click", (event) => {
   if (event.target === elements.recordDialog) elements.recordDialog.close();

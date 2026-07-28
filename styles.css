@@ -544,6 +544,50 @@ input[type="search"] {
   display: grid;
 }
 
+.pagination {
+  display: flex;
+  min-height: 62px;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: var(--paper-tint);
+  border-top: 1px solid var(--line);
+}
+
+.pagination button {
+  min-width: 82px;
+  min-height: 38px;
+  padding: 0.4rem 0.8rem;
+  color: var(--teal-dark);
+  background: var(--paper);
+  border: 1px solid var(--line-dark);
+  border-radius: 0.42rem;
+  font-size: 0.74rem;
+  font-weight: 800;
+}
+
+.pagination button:hover:not(:disabled) {
+  background: var(--teal-soft);
+}
+
+.pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+
+.pagination span {
+  min-width: 145px;
+  color: var(--muted);
+  font-size: 0.72rem;
+  text-align: center;
+}
+
+.pagination strong {
+  color: var(--ink);
+  font-family: var(--mono);
+}
+
 .result-row {
   display: grid;
   grid-template-columns: 34px minmax(240px, 2.2fr) minmax(110px, 0.8fr) minmax(100px, 0.75fr) minmax(110px, 0.85fr) 24px;
@@ -1025,6 +1069,19 @@ input[type="search"] {
 
   .results-heading {
     padding-inline: 0.9rem;
+  }
+
+  .pagination {
+    gap: 0.5rem;
+    padding-inline: 0.5rem;
+  }
+
+  .pagination button {
+    min-width: 70px;
+  }
+
+  .pagination span {
+    min-width: 120px;
   }
 
   .record-dialog {
