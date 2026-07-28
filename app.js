@@ -41,7 +41,7 @@ const filterControls = [
   elements.resetFilters,
 ];
 
-const numberFormatter = new Intl.NumberFormat("ar-EG", { maximumFractionDigits: 2 });
+const numberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 const latinNumberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 2 });
 const recordShardCache = new Map();
 const nameShardCache = new Map();
