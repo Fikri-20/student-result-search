@@ -287,13 +287,35 @@ async function searchByName(query) {
 async function searchByFilters(filters) {
   elements.resultsMeta.textContent = "جارٍ تحميل فهرس الفلاتر لأول مرة…";
   const index = await getFilterIndex();
-  const seats = [];
-  for (const [seat, total, status, schoolIndex, gender] of index) {
+  const rankedMatches = [];
+  for (const entry of index) {
+    const [seat, total, status, schoolIndex, gender] = entry;
     if (!matchesValues(total, status, schoolIndex, gender, filters)) continue;
-    seats.push(seat);
-    if (seats.length >= 80) break;
+
+    let low = 0;
+    let high = rankedMatches.length;
+    while (low < high) {
+      const middle = (low + high) >> 1;
+      const current = rankedMatches[middle];
+      const comesBefore = Number(total) > Number(current[1]) ||
+        (Number(total) === Number(current[1]) && Number(seat) < Number(current[0]));
+      if (comesBefore) high = middle;
+      else low = middle + 1;
+    }
+    if (low < 80) {
+      rankedMatches.splice(low, 0, entry);
+      if (rankedMatches.length > 80) rankedMatches.pop();
+    }
   }
-  return resolveSeats(seats);
+  return resolveSeats(rankedMatches.map(([seat]) => seat));
+}
+
+function sortRecordsByScore(records) {
+  return records.sort((first, second) => {
+    const scoreDifference = Number(value(second, "total")) - Number(value(first, "total"));
+    if (scoreDifference) return scoreDifference;
+    return Number(value(first, "seat")) - Number(value(second, "seat"));
+  });
 }
 
 function setEmpty(title, message) {
@@ -304,7 +326,7 @@ function setEmpty(title, message) {
   elements.resultCount.hidden = true;
 }
 
-function renderResults(records) {
+function renderResults(records, sortedByScore = false) {
   elements.searchResults.replaceChildren();
   if (!records.length) {
     setEmpty("لا توجد نتيجة مطابقة", "جرّب كتابة جزء أطول من الاسم أو غيّر الفلاتر المختارة.");
@@ -315,7 +337,9 @@ function renderResults(records) {
   elements.emptySearch.hidden = true;
   elements.resultCount.hidden = false;
   elements.resultCount.textContent = formatNumber(records.length);
-  elements.resultsMeta.textContent = `عرض ${formatNumber(records.length)} نتيجة؛ اضغط على أي سجل لعرض التفاصيل.`;
+  elements.resultsMeta.textContent = sortedByScore
+    ? `عرض ${formatNumber(records.length)} نتيجة مرتبة حسب المجموع من الأعلى إلى الأقل.`
+    : `عرض ${formatNumber(records.length)} نتيجة؛ اضغط على أي سجل لعرض التفاصيل.`;
   const fragment = document.createDocumentFragment();
 
   records.forEach((record, index) => {
@@ -369,7 +393,9 @@ async function runSearch() {
       const result = numeric ? await searchBySeat(normalizedDigits) : await searchByName(rawQuery);
       records = result.records;
       short = result.short;
-      if (filters.any) records = records.filter((record) => matchesRecord(record, filters));
+      if (filters.any) records = sortRecordsByScore(
+        records.filter((record) => matchesRecord(record, filters)),
+      );
     }
 
     if (version !== searchVersion) return;
@@ -378,7 +404,7 @@ async function runSearch() {
       elements.resultsMeta.textContent = "عبارة البحث قصيرة جدًا.";
       return;
     }
-    renderResults(records.slice(0, 80));
+    renderResults(records.slice(0, 80), filters.any);
   } catch (error) {
     if (version !== searchVersion) return;
     console.error(error);
