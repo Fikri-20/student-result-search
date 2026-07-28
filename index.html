@@ -3,154 +3,63 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#0b6d68" />
+    <meta name="theme-color" content="#075d58" />
     <link rel="icon" href="favicon.svg" type="image/svg+xml" />
     <meta
       name="description"
-      content="بحث محلي وآمن في نتائج الثانوية العامة دون رفع ملفات الطلاب إلى الإنترنت."
+      content="بحث سريع برقم الجلوس أو اسم الطالب في نتيجة الثانوية العامة 2026."
     />
-    <title>دفتر النتيجة — بحث الثانوية العامة</title>
+    <title>دفتر النتيجة — الثانوية العامة 2026</title>
     <link rel="stylesheet" href="styles.css" />
   </head>
   <body>
     <a class="skip-link" href="#searchInput">الانتقال إلى البحث</a>
 
-    <main class="app-shell">
-      <header class="site-header">
+    <header class="site-header">
+      <div class="header-inner">
         <a class="brand" href="#top" aria-label="دفتر النتيجة، الصفحة الرئيسية">
-          <span class="brand-mark" aria-hidden="true">ثـ</span>
+          <span class="brand-mark" aria-hidden="true">ث</span>
           <span>
             <strong>دفتر النتيجة</strong>
-            <small>الدور الأول · 2026</small>
+            <small>الثانوية العامة · 2026</small>
           </span>
         </a>
-
-        <div class="header-actions">
-          <span class="privacy-badge">
-            <span class="privacy-dot" aria-hidden="true"></span>
-            البيانات لا تغادر جهازك
-          </span>
-          <label class="button button-primary" for="filePicker">
-            <span aria-hidden="true">＋</span>
-            اختيار ملفات البيانات
-          </label>
-          <input
-            id="filePicker"
-            class="visually-hidden"
-            type="file"
-            accept=".csv,text/csv"
-            multiple
-          />
+        <div id="dataStatus" class="data-status" role="status" aria-live="polite">
+          <span class="status-dot" aria-hidden="true"></span>
+          جارٍ تجهيز البيانات
         </div>
-      </header>
+      </div>
+    </header>
 
-      <section id="top" class="intro" aria-labelledby="pageTitle">
+    <main id="top" class="app-shell">
+      <section class="page-intro" aria-labelledby="pageTitle">
         <div>
-          <p class="eyebrow">سجل محلي سريع</p>
-          <h1 id="pageTitle">ابحث عن النتيجة<br />كما تبحث في دفتر.</h1>
+          <p class="section-label">الدور الأول</p>
+          <h1 id="pageTitle">نتيجة الثانوية العامة 2026</h1>
+          <p>ابحث مباشرةً برقم الجلوس أو بداية اسم الطالب، ثم ضيّق النتائج بالفلاتر.</p>
         </div>
-        <p class="intro-copy">
-          اختر ملفي <bdi>Stage_New_Search.csv</bdi> و<bdi>SHREKAT.csv</bdi> مرة واحدة،
-          ثم ابحث برقم الجلوس أو الاسم. كل المعالجة تتم داخل هذا المتصفح.
-        </p>
-      </section>
-
-      <section id="loaderPanel" class="loader-panel" aria-labelledby="loaderTitle">
-        <div class="loader-copy">
-          <span class="step-number" aria-hidden="true">01</span>
-          <div>
-            <h2 id="loaderTitle">حمّل سجلاتك من الجهاز</h2>
-            <p>يمكنك اختيار الملفين معًا أو سحبهما إلى هذه المساحة.</p>
-          </div>
-        </div>
-
-        <div id="dropZone" class="drop-zone">
-          <div class="file-state" data-file="stage">
-            <span class="file-icon" aria-hidden="true">Σ</span>
-            <span>
-              <strong>ملف البحث والإحصائيات</strong>
-              <small id="stageFileName">Stage_New_Search.csv</small>
-            </span>
-            <span id="stageState" class="state-pill">في الانتظار</span>
-            <span class="progress-track" aria-hidden="true">
-              <span id="stageProgress" class="progress-value"></span>
-            </span>
-          </div>
-
-          <div class="file-state" data-file="detail">
-            <span class="file-icon" aria-hidden="true">≡</span>
-            <span>
-              <strong>ملف السجل الكامل</strong>
-              <small id="detailFileName">SHREKAT.csv</small>
-            </span>
-            <span id="detailState" class="state-pill">في الانتظار</span>
-            <span class="progress-track" aria-hidden="true">
-              <span id="detailProgress" class="progress-value"></span>
-            </span>
-          </div>
-        </div>
-
-        <p id="loadMessage" class="load-message" role="status" aria-live="polite">
-          لم يتم تحميل أي ملف بعد.
-        </p>
-      </section>
-
-      <section id="statsSection" class="stats-section" aria-labelledby="statsTitle" hidden>
-        <div class="section-heading">
-          <span class="step-number" aria-hidden="true">02</span>
-          <div>
-            <p class="eyebrow">صورة عامة</p>
-            <h2 id="statsTitle">الإحصائيات</h2>
-          </div>
-        </div>
-
-        <div class="ledger-stats">
-          <article class="stat stat-total">
-            <span>إجمالي السجلات</span>
-            <strong id="statTotal">—</strong>
-            <small>طالب وطالبة</small>
-          </article>
-          <article class="stat">
-            <span>ناجح دور أول</span>
-            <strong id="statPass">—</strong>
-            <small id="statPassRate">—</small>
-          </article>
-          <article class="stat">
-            <span>دور ثان</span>
-            <strong id="statSecond">—</strong>
-            <small id="statSecondRate">—</small>
-          </article>
-          <article class="stat">
-            <span>راسب</span>
-            <strong id="statFail">—</strong>
-            <small id="statFailRate">—</small>
-          </article>
-          <article class="stat">
-            <span>متوسط النسبة</span>
-            <strong id="statAverage">—</strong>
-            <small>للمجاميع المسجلة</small>
-          </article>
+        <div class="intro-seal" aria-hidden="true">
+          <span>بيانات جاهزة</span>
+          <strong>2026</strong>
         </div>
       </section>
 
-      <section class="search-section" aria-labelledby="searchTitle">
-        <div class="section-heading">
-          <span class="step-number" aria-hidden="true">03</span>
-          <div>
-            <p class="eyebrow">بحث السجل</p>
-            <h2 id="searchTitle">اكتب رقم الجلوس أو الاسم</h2>
-          </div>
-        </div>
-
-        <div class="search-cheque" aria-describedby="searchHint">
-          <div class="cheque-body">
-            <div class="cheque-topline">
-              <span>نتيجة الثانوية العامة</span>
-              <span class="cheque-date">الدور الأول / 2026</span>
+      <section class="search-panel" aria-labelledby="searchTitle">
+        <div class="search-ticket">
+          <div class="ticket-main">
+            <div class="ticket-heading">
+              <div>
+                <h2 id="searchTitle">البحث في النتائج</h2>
+                <p id="searchHint">اكتب 3 أحرف على الأقل أو رقم الجلوس.</p>
+              </div>
+              <span class="ticket-code" aria-hidden="true">RESULT / 26</span>
             </div>
 
-            <label for="searchInput">ابحث عن</label>
+            <label class="search-label" for="searchInput">رقم الجلوس أو اسم الطالب</label>
             <div class="search-control">
+              <svg aria-hidden="true" viewBox="0 0 24 24" width="22" height="22">
+                <path d="m21 21-4.35-4.35m2.35-5.15a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z" />
+              </svg>
               <input
                 id="searchInput"
                 type="search"
@@ -159,66 +68,136 @@
                 placeholder="مثال: 2735400 أو مالك عبد الله"
                 disabled
               />
-              <button id="clearSearch" class="clear-search" type="button" aria-label="مسح البحث" hidden>
-                ×
-              </button>
-            </div>
-
-            <p id="searchHint" class="search-hint">
-              حمّل ملف البحث أولًا. تظهر النتائج أثناء الكتابة.
-            </p>
-
-            <div class="micr-line" aria-hidden="true">
-              <span>⑆ 2026</span><span>⑈ 320</span><span>⑆ RESULT BOOK</span>
+              <button id="clearSearch" class="icon-button" type="button" aria-label="مسح البحث" hidden>×</button>
             </div>
           </div>
-
-          <aside class="cheque-stub" aria-hidden="true">
-            <span class="stub-label">بحث</span>
+          <aside class="ticket-stub" aria-hidden="true">
+            <span>دفتر</span>
             <strong>ث.ع</strong>
-            <span>محلي</span>
-            <bdi>2026 / 01</bdi>
+            <bdi>NO. 2026</bdi>
           </aside>
         </div>
 
-        <div id="resultsMeta" class="results-meta" role="status" aria-live="polite"></div>
-        <div id="searchResults" class="search-results"></div>
-
-        <div id="emptySearch" class="empty-state">
-          <span aria-hidden="true">⌕</span>
-          <p>نتيجة البحث ستظهر هنا.</p>
+        <div class="filters" aria-label="تصفية النتائج">
+          <div class="filter-field">
+            <label for="cityFilter">المحافظة</label>
+            <select id="cityFilter" disabled>
+              <option value="">كل المحافظات</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="statusFilter">حالة النتيجة</label>
+            <select id="statusFilter" disabled>
+              <option value="">كل الحالات</option>
+              <option value="1">ناجح دور أول</option>
+              <option value="2">دور ثان</option>
+              <option value="3">راسب دور أول</option>
+              <option value="4">غياب كلي</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="minimumFilter">النسبة من</label>
+            <select id="minimumFilter" disabled>
+              <option value="">أي نسبة</option>
+              <option value="50">50%</option>
+              <option value="60">60%</option>
+              <option value="70">70%</option>
+              <option value="80">80%</option>
+              <option value="90">90%</option>
+            </select>
+          </div>
+          <div class="filter-field">
+            <label for="genderFilter">النوع</label>
+            <select id="genderFilter" disabled>
+              <option value="">الكل</option>
+              <option value="1">طالب</option>
+              <option value="2">طالبة</option>
+            </select>
+          </div>
+          <div class="filter-field filter-school">
+            <label for="schoolFilter">المدرسة أو الإدارة</label>
+            <input id="schoolFilter" type="search" placeholder="مثال: كفر سنجاب" disabled />
+          </div>
+          <button id="resetFilters" class="reset-button" type="button" disabled>مسح الفلاتر</button>
         </div>
       </section>
 
-      <section id="recordSection" class="record-section" aria-labelledby="recordTitle" hidden>
-        <div class="record-toolbar">
+      <section class="stats-strip" aria-label="إحصائيات النتيجة">
+        <div class="stat stat-primary">
+          <span>إجمالي السجلات</span>
+          <strong id="statTotal">—</strong>
+        </div>
+        <div class="stat">
+          <span>ناجح دور أول</span>
+          <strong id="statPass">—</strong>
+          <small id="statPassRate">—</small>
+        </div>
+        <div class="stat">
+          <span>دور ثان</span>
+          <strong id="statSecond">—</strong>
+          <small id="statSecondRate">—</small>
+        </div>
+        <div class="stat">
+          <span>راسب</span>
+          <strong id="statFail">—</strong>
+          <small id="statFailRate">—</small>
+        </div>
+        <div class="stat">
+          <span>متوسط النسبة</span>
+          <strong id="statAverage">—</strong>
+          <small>للمجاميع المسجلة</small>
+        </div>
+      </section>
+
+      <section class="results-section" aria-labelledby="resultsTitle">
+        <div class="results-heading">
           <div>
-            <p class="eyebrow">السجل المطابق</p>
-            <h2 id="recordTitle">السجل الكامل</h2>
+            <h2 id="resultsTitle">نتائج البحث</h2>
+            <p id="resultsMeta" role="status" aria-live="polite">البيانات تُجهّز الآن…</p>
           </div>
-          <div class="toolbar-actions">
-            <button id="printRecord" class="button button-secondary" type="button">طباعة</button>
-            <button id="closeRecord" class="button button-quiet" type="button">إغلاق</button>
-          </div>
+          <span id="resultCount" class="result-count" hidden></span>
         </div>
 
-        <div id="recordCheque" class="record-cheque"></div>
-        <div id="recordFields" class="record-fields"></div>
+        <div id="searchResults" class="search-results"></div>
+        <div id="emptySearch" class="empty-state">
+          <span class="empty-icon" aria-hidden="true">⌕</span>
+          <h3>ابدأ برقم الجلوس أو الاسم</h3>
+          <p>يمكنك أيضًا استخدام الفلاتر وحدها لاستعراض مجموعة من النتائج.</p>
+        </div>
       </section>
 
       <footer class="site-footer">
-        <p>كل البحث والفهرسة يتمان محليًا. لا تُرفع ملفات CSV إلى أي خادم.</p>
+        <p>تُعرض بيانات النتيجة والمدرسة فقط؛ لا يتضمن الموقع أرقامًا قومية أو عناوين شخصية.</p>
         <span>دفتر النتيجة · 2026</span>
       </footer>
     </main>
 
+    <dialog id="recordDialog" class="record-dialog" aria-labelledby="recordTitle">
+      <div class="dialog-shell">
+        <header class="record-header">
+          <div>
+            <span class="record-kicker">بيان نتيجة</span>
+            <h2 id="recordTitle">السجل الكامل</h2>
+          </div>
+          <button id="closeRecord" class="dialog-close" type="button" aria-label="إغلاق السجل">×</button>
+        </header>
+        <div id="recordSummary" class="record-summary"></div>
+        <div id="recordFields" class="record-fields"></div>
+        <footer class="record-actions">
+          <p>الدرجات السالبة في المصدر تُعرض كشرطة لأنها غير مقررة أو غير مسجلة.</p>
+          <button id="printRecord" class="print-button" type="button">طباعة السجل</button>
+        </footer>
+      </div>
+    </dialog>
+
     <template id="resultTemplate">
       <button class="result-row" type="button">
-        <span class="result-serial"></span>
+        <span class="result-index"></span>
         <span class="result-identity">
           <strong class="result-name"></strong>
-          <small class="result-seat"></small>
+          <small class="result-school"></small>
         </span>
+        <span class="result-seat"></span>
         <span class="result-score"></span>
         <span class="result-status"></span>
         <span class="result-arrow" aria-hidden="true">←</span>
